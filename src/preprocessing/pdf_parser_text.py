@@ -6,12 +6,14 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 from langchain_community.llms import LlamaCpp
+import torch
 
+print(torch.cuda.is_available())
 
 warnings.filterwarnings("ignore")
 
 model_id = 'intfloat/multilingual-e5-large'
-model_kwargs = {'device': 'gpu'}
+model_kwargs = {'device': 'cuda'}
 embeddings = HuggingFaceEmbeddings(
         model_name=model_id,
         model_kwargs=model_kwargs
