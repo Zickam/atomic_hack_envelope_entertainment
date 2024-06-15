@@ -5,3 +5,4 @@ venv/
 **/.ipynb_checkpoints
 
 /src/data_preprocessing/cache
+/data/model/*
