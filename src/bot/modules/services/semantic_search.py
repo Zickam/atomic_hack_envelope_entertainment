@@ -11,5 +11,5 @@ embeddings = HuggingFaceEmbeddings(
 
 
 def get_semantic_response(user_question:str) -> list:
-    new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
+    new_db = FAISS.load_local("../data/faiss_index", embeddings, allow_dangerous_deserialization=True)
     return new_db.similarity_search(user_question)
