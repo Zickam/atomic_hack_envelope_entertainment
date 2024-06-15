@@ -1,4 +1,5 @@
 # Чтение списка объектов из файла
+import os
 import pickle
 import warnings
 
@@ -12,7 +13,7 @@ print(torch.cuda.is_available())
 # Отключаем все предупреждения
 warnings.filterwarnings('ignore')
 
-with open('atomic_hack_envelope_entertainment/data/pkl/cleared_documents.pkl', 'rb') as file:
+with open('../../data/pkl/cleared_documents.pkl', 'rb') as file:
     docs = pickle.load(file)
 
 # Разделяем на чанки
@@ -46,4 +47,4 @@ def get_db():
 db = get_db()
 
 # Сохраняем индекс в файл
-db.save_local('faiss_index')
+db.save_local('../../data/faiss_index')
