@@ -6,9 +6,6 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 from langchain_community.llms import LlamaCpp
-import torch
-
-print(torch.cuda.is_available())
 
 warnings.filterwarnings("ignore")
 
@@ -70,23 +67,16 @@ def get_conversational_chain():
 
     # Initialize a ChatGoogleGenerativeAI model for conversational AI
     model = LlamaCpp(
-    model_path="D:\\Egorik\\Desktop\\faiss_hackaton\\urfu_hackathon\\src\\model-q4_K.gguf",  # Путь к модели
+    model_path="atomic_hack_envelope_entertainment\\data\\model\\model-q4_K.gguf",  # Путь к модели
     temperature=0.1,  # Температура для управления степенью случайности в ответах
     max_tokens=512,  # Максимальное количество токенов в ответе
     max_length=1000,  # Максимальная длина текста (в символах)
-    top_p=0.95,
-    top_k=40,
     # callback_manager=callback_manager,  # Менеджер коллбэков
     f16_kv=True,
     n_batch=512,
-    verbose=False,  # Отключение подробного вывода
-    do_sample=True,
-    repetition_penalty=1.9,
-    return_full_text=True,
-    max_new_tokens=400,  # Увеличиваем максимальное количество новых токенов
-    n_ctx=4096,
+    verbose=False,  # Отключение подробного вывода  # Увеличиваем максимальное количество новых токенов
+    n_ctx=35000,
     n_gpu_layers=-1,  # -1 для максимального использования GPU, 0 для CPU
-    num_return_sequences=1,
 )
 
     # Create a prompt template with input variables "context" and "question"
@@ -105,10 +95,11 @@ def user_input(user_question):
 
     # Load a FAISS vector database from a local file
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
-
+    retriever = new_db.as_retriever(search_type="similarity", search_kwargs={"k": 1})
+    print(retriever)
     # Perform similarity search in the vector database based on the user question
     docs = new_db.similarity_search(user_question)
-
+    print(docs)
     # Obtain a conversational question-answering chain
     chain = get_conversational_chain()
 
@@ -127,4 +118,4 @@ def user_input(user_question):
 # text = get_pdf_text(['test.pdf'])
 # chunks = get_chunks(text)
 # get_vector_store(chunks)
-user_input(input('Введите запрос: '))
+user_input('Оплата')
