@@ -3,9 +3,7 @@
 # subprocess.call(["conda", "create", "-n", "env2",
 #                  "--file", "requirements.txt", "-c", "pytorch", "-c", "conda-forge"])
 import os
-print(2)
 from bot.modules.services.semantic_search import get_semantic_response
-print(1)
 def questionsListToStr(questions: list[str]) -> str:
     s = ""
     for question in questions:
@@ -45,5 +43,4 @@ def main():
 
 
 if __name__ == "__main__":
-    print(3)
     main()
