@@ -6,3 +6,4 @@ venv/
 
 /src/data_preprocessing/cache
 /data/model/*
+llama.log
