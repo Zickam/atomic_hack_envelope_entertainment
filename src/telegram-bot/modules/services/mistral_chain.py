@@ -1,10 +1,12 @@
-from langchain_community.llms.llamafile import Llamafile
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import PromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_core.runnables import RunnablePassthrough, RunnablePick
 
+from nltk.tokenize import sent_tokenize
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+import nltk
+nltk.download('stopwords')
 
 print('Embeddings loads...')
 model_id = 'intfloat/multilingual-e5-large'
@@ -15,47 +17,46 @@ embeddings = HuggingFaceEmbeddings(
     )
 
 
-llm = Llamafile()
-
-# Prompt
-prompt = PromptTemplate.from_template(
-"""
-Ты эксперт по базе знаний компании РОСАТОМ. Пользователь задает тебе вопрос, ты отвечаешь на него в чате на русском языке, используя только контекст базы знаний компании, предоставленной тебе в виде файлов. Твоя задача помочь 
-пользователю найти ответ на вопрос, и решить его. Все ответы пиши в контексте процессов, регламентов и документов компании РОСАТОМ. Пользователь это сотрудник компании, твоя задача максимально точно и понятно 
-отвечать на вопросы пользователя. Помни, пользователь задает вопросы только в контексте базы знаний компании РОСАТОМ. Отвечай только на заданный вопрос. Не делай повторов предложений. Отвечай так, чтобы 
-пользователь мог самостоятельно решить свой вопрос, используя, приложение, документацию, или сайт компании. В ответе описывай шаги по решению вопроса, если оно есть в базе знаний. Не предлагай 
-пользователю обращаться в техническую поддержку, ты и есть часть технической поддержки. То чего нет в базе знаний компании ты не знаешь, и ответить не можешь. Никогда не пиши вопрос решен, опиши шаги 
-необходимые для решения вопроса.\n\n
-
-Context:\n {context}?\n
-Question: \n{question}\n
-
-Answer:
-"""
-
-)
-
-# Chain
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-
 vectorstore = FAISS.load_local("data/faiss_index", embeddings, allow_dangerous_deserialization=True)
-# Perform similarity search in the vector database based on the user question
+
+def compress_text(semantic_search_text) -> str:
+    text = semantic_search_text
+
+    sentences = sent_tokenize(text.lower())
+    stop_words = set(stopwords.words("russian"))
+
+    word_frequencies = {}
+    for sentence in sentences:
+        words = word_tokenize(sentence)
+        for word in words:
+            if word not in stop_words:
+                if word not in word_frequencies:
+                    word_frequencies[word] = 1
+                else:
+                    word_frequencies[word] += 1
+
+    max_frequency = max(word_frequencies.values())
+    for word in word_frequencies.keys():
+        word_frequencies[word] = word_frequencies[word] / max_frequency
+
+    sentence_scores = {}
+    for sentence in sentences:
+        words = word_tokenize(sentence)
+        for word in words:
+            if word in word_frequencies:
+                if sentence not in sentence_scores:
+                    sentence_scores[sentence] = word_frequencies[word]
+                else:
+                    sentence_scores[sentence] += word_frequencies[word]
+
+    num_sentences = 3
+    summary_sentences = sorted(sentence_scores, key=sentence_scores.get, reverse=True)[:num_sentences]
+    summary = ' '.join(summary_sentences)
+    return summary
 
 
-# async def get_response(user_question:str) -> str:
-#     chain = RunnablePassthrough.assign(context=RunnablePick("context") | format_docs) | prompt | llm | StrOutputParser()
-#     docs = vectorstore.similarity_search(user_question)
-#     chain = chain.invoke({"context": docs, "question": user_question}).strip('<s>').strip('</s>')
-#     print(chain)
-#     return str(chain)
 
-
-while True:
-    question = input('> ')
-    chain = RunnablePassthrough.assign(context=RunnablePick("context") | format_docs) | prompt | llm | StrOutputParser()
-    docs = vectorstore.similarity_search(question)
-    print(chain.invoke({"context": docs, "question": question}))
-
+async def get_response(user_question:str) -> str:
+    docs = ' '.join(list(map(lambda x: x.page_content, vectorstore.similarity_search(user_question))))
+    return compress_text(docs)
 
