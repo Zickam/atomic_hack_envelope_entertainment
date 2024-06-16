@@ -40,7 +40,7 @@ def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
 
-vectorstore = FAISS.load_local("data/faiss_index", embeddings, allow_dangerous_deserialization=True)
+vectorstore = FAISS.load_local("../../data/faiss_index", embeddings, allow_dangerous_deserialization=True)
 # Perform similarity search in the vector database based on the user question
 
 

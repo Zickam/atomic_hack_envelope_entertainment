@@ -2,8 +2,7 @@
 #
 # subprocess.call(["conda", "create", "-n", "env2",
 #                  "--file", "requirements.txt", "-c", "pytorch", "-c", "conda-forge"])
-import os
-from bot.modules.services.semantic_search import get_semantic_response
+from semantic_search import get_semantic_response
 def questionsListToStr(questions: list[str]) -> str:
     s = ""
     for question in questions:

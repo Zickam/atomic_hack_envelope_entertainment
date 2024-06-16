@@ -7,3 +7,8 @@ venv/
 /src/data_preprocessing/cache
 /data/model/*
 llama.log
+aya-23-8B.Q2_K.llamafile
+/data/dataset/
+/src/telegram-bot/
+/data/pkl/cleared_documents.pkl
+tinyllama-1.1b-chat-v1.0.Q4_K_M-server.llamafile

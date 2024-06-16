@@ -15,7 +15,7 @@ from modules.handlers import *
 system('cls')
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=getenv('BOT_TOKEN'), parse_mode='HTML')
+bot = Bot(token="7198332517:AAG-vwu8l0jZo2zav0hr3H4ACuJSTLzAcKA", parse_mode='HTML')
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 if __name__ == '__main__':
